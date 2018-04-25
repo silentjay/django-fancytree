@@ -6,8 +6,9 @@ from django.forms.widgets import Widget
 from django.utils.encoding import force_unicode
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
-from django.utils.datastructures import MultiValueDict, MergeDict
+from django.utils.datastructures import MultiValueDict
 from mptt.templatetags.mptt_tags import cache_tree_children
+from chainmap import ChainMap
 
 try:
     import simplejson as json
@@ -51,7 +52,7 @@ class FancyTreeWidget(Widget):
         self.choices = list(choices)
 
     def value_from_datadict(self, data, files, name):
-        if isinstance(data, (MultiValueDict, MergeDict)) and self.select_mode != 1:
+        if isinstance(data, (MultiValueDict, ChainMap)) and self.select_mode != 1:
             return data.getlist(name)
         return data.get(name, None)
 
@@ -61,7 +62,7 @@ class FancyTreeWidget(Widget):
         if not isinstance(value, (list, tuple)):
             value = [value]
         has_id = attrs and 'id' in attrs
-        final_attrs = self.build_attrs(attrs, name=name)
+        final_attrs = self.build_attrs(attrs)
         if has_id:
             output = [u'<div id="%s"></div>' % attrs['id']]
             id_attr = u' id="%s_checkboxes"' % (attrs['id'])
